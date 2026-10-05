@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+:root {
+  --tg-accent: #7c3aed;
+  --tg-accent-soft: #ede9fe;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+::selection {
+  background: var(--tg-accent-soft);
+}
