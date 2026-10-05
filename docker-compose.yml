@@ -1,0 +1,67 @@
+# TalentGraph AI — docker compose stack
+# api (FastAPI + retrieval) + web (Next.js) + PostgreSQL with pgvector.
+#
+#   docker compose up --build -d
+#   docker compose exec api python -m app.seed     # first boot seeds automatically
+#
+# Ports default to 3400/8300/5434 so the stack can coexist with other local
+# projects; override via WEB_PORT / API_PORT / POSTGRES_PORT.
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: talentgraph
+      POSTGRES_PASSWORD: talentgraph
+      POSTGRES_DB: talentgraph
+    ports:
+      - "${POSTGRES_PORT:-5434}:5432"
+    volumes:
+      - talentgraph-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U talentgraph -d talentgraph"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://talentgraph:talentgraph@db:5432/talentgraph
+      AI_PROVIDER: ${AI_PROVIDER:-auto}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
+      EMBEDDING_DIMS: ${EMBEDDING_DIMS:-384}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3400}
+    ports:
+      - "${API_PORT:-8300}:8300"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head
+      && python -m app.seed --if-empty
+      && uvicorn app.main:app --host 0.0.0.0 --port 8300"
+    healthcheck:
+      test: ["CMD", "python", "-c",
+        "import urllib.request; urllib.request.urlopen('http://localhost:8300/api/v1/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE:-http://localhost:8300/api/v1}
+    environment:
+      PORT: "3400"
+      HOSTNAME: "0.0.0.0"
+    ports:
+      - "${WEB_PORT:-3400}:3400"
+    depends_on:
+      - api
+
+volumes:
+  talentgraph-db:

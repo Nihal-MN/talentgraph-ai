@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (SQLite, hermetic)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+      - name: Install dependencies
+        run: uv sync --frozen
+      - name: Lint
+        run: uv run ruff check app tests scripts
+      - name: Tests (incl. named eval suite)
+        run: uv run pytest -q
+
+  backend-postgres:
+    name: Backend (PostgreSQL + pgvector)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: talentgraph
+          POSTGRES_PASSWORD: talentgraph
+          POSTGRES_DB: talentgraph_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U talentgraph -d talentgraph_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql+psycopg://talentgraph:talentgraph@localhost:5432/talentgraph_test
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+      - name: Install dependencies
+        run: uv sync --frozen
+      - name: Migrations against pgvector
+        run: uv run alembic upgrade head
+      - name: Tests on PostgreSQL (native FTS + pgvector paths)
+        run: uv run pytest -q
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Tests
+        run: npm run test
+      - name: Production build
+        run: npm run build
+
+  docker:
+    name: Docker images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build API image
+        run: docker build -t talentgraph-api:ci ./backend
+      - name: Build web image
+        run: docker build -t talentgraph-web:ci ./frontend
