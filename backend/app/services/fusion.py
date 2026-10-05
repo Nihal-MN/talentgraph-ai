@@ -55,10 +55,16 @@ def reciprocal_rank_fusion(
 
 
 def normalize_scores(fused: list[FusedHit]) -> dict[int, float]:
-    """Min-max normalize fused scores to [0, 1] for display/reranker input."""
+    """Min-max normalize fused scores to [0, 1] for display/reranker input.
+
+    Degenerate cases return 1.0 (a single hit *is* the best hit; all-equal
+    scores are equally best) so the reranker's fusion component stays sane.
+    """
     if not fused:
         return {}
     values = [hit.score for hit in fused]
     low, high = min(values), max(values)
-    span = high - low or 1.0
+    if high == low:
+        return {hit.candidate_id: 1.0 for hit in fused}
+    span = high - low
     return {hit.candidate_id: (hit.score - low) / span for hit in fused}

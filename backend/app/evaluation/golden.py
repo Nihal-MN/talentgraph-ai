@@ -270,4 +270,49 @@ GOLDEN_QUERIES: list[GoldenQuery] = [
             else (1 if _any(f, "rag", "embeddings", "llm", "vector database") else 0)
         ),
     ),
+    # ── paraphrase / diffuse queries: no hard constraints — pure ranking test ──
+    GoldenQuery(
+        "q21",
+        "engineers who scaled payments infrastructure at high-growth startups",
+        lambda f: (
+            2
+            if f["industry"] == "Fintech"
+            and f["family"].endswith("engineer")
+            and f["years"] >= 4
+            and _any(f, "microservices", "postgresql", "redis", "kubernetes")
+            else (1 if f["industry"] == "Fintech" and f["family"].endswith("engineer") else 0)
+        ),
+    ),
+    GoldenQuery(
+        "q22",
+        "experience building search or recommendation systems with embeddings",
+        lambda f: (
+            2
+            if _any(f, "rag", "embeddings", "vector database")
+            else (1 if _any(f, "machine-learning", "nlp", "llm") else 0)
+        ),
+    ),
+    GoldenQuery(
+        "q23",
+        "someone who can own our whole data stack: pipelines, warehouse and dashboards",
+        lambda f: (
+            2
+            if _has(f, "spark", "airflow") and _any(f, "snowflake", "data warehouse", "dbt")
+            else (1 if _any(f, "spark", "airflow", "dbt", "etl", "snowflake") else 0)
+        ),
+    ),
+    GoldenQuery(
+        "q24",
+        "product-minded fullstack engineer who shipped customer-facing features",
+        lambda f: (
+            2
+            if f["family"] == "fullstack engineer" and _any(f, "react", "typescript")
+            else (
+                1
+                if f["family"] in ("fullstack engineer", "frontend engineer")
+                or _any(f, "react", "typescript", "nodejs")
+                else 0
+            )
+        ),
+    ),
 ]

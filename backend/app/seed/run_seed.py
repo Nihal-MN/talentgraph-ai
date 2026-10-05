@@ -349,12 +349,20 @@ def main() -> None:
     parser.add_argument("--reset", action="store_true", help="delete existing data first")
     parser.add_argument("--reembed", action="store_true", help="recompute embeddings only")
     parser.add_argument("--no-benchmark", action="store_true")
+    parser.add_argument(
+        "--if-empty",
+        action="store_true",
+        help="skip seeding when candidates already exist (docker first-boot)",
+    )
     args = parser.parse_args()
 
     with SessionLocal() as db:
         if args.reembed:
             result = reembed(db)
             print(f"Re-embedded {result['reembedded']} candidates.")
+            return
+        if args.if_empty and (db.scalar(select(func.count()).select_from(Candidate)) or 0) > 0:
+            print("Dataset already present — skipping seed (use --reset to rebuild).")
             return
         if args.reset:
             _clear_all(db)
