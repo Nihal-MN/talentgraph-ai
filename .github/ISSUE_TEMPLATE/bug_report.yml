@@ -1,0 +1,47 @@
+name: Bug report
+description: Something is broken or behaves unexpectedly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report! Reminder: please don't include real candidate
+        data or resume contents in issues.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: Exact query, page, or command; strategy and filters used.
+      placeholder: |
+        1. docker compose up -d
+        2. Search: "senior python engineer in Berlin"
+        3. Click ...
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where does it happen?
+      options:
+        - Web UI
+        - API
+        - Seeding / dataset
+        - Benchmark / evaluation
+        - Docker / setup
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit / version
+      description: Output of the health page or `git rev-parse HEAD`.
+    validations:
+      required: false
