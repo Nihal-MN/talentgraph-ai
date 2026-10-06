@@ -125,7 +125,7 @@ Evaluation honesty: [docs/EVALUATION.md](docs/EVALUATION.md)
 ## Testing
 
 ```bash
-make test   # backend suite (110 tests) — or: cd backend && uv run pytest -q
+make test   # backend suite (111 tests) — or: cd backend && uv run pytest -q
 make eval   # named retrieval evals (20) — pytest tests/evals -q
 make fe-test
 make bench  # re-run + persist the retrieval benchmark

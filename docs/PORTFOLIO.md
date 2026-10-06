@@ -23,7 +23,7 @@ build answers well.
   profiles (aliases like "K8s"/"Postgres", coverage pins for demo-critical
   combinations) — reproducible benchmarks with zero real-person data.
 - CI runs the full suite against **both SQLite and a real pgvector service**
-  plus Docker image builds; 110 backend tests + 20 named retrieval evals +
+  plus Docker image builds; 111 backend tests + 20 named retrieval evals +
   frontend tests, all green on GitHub Actions.
 
 ## LinkedIn post (draft)
@@ -120,7 +120,7 @@ gaps, and analytics — with filters kept as the deterministic escape hatch.
 - Dataset: 200 deterministic synthetic profiles · 16 archetypes · ~150
   canonical skills · 260+ companies
 - Pipeline latency: hybrid + rerank ≈ 50–70 ms on the demo pool (eval 18)
-- Tests: 110 backend · 20 named evals · 12 frontend · CI on SQLite **and**
+- Tests: 111 backend · 20 named evals · 12 frontend · CI on SQLite **and**
   pgvector · Docker builds green
 - Benchmark (24 queries, k=10): see `docs/EVALUATION.md` — hybrid leads MRR,
   hybrid+rerank leads nDCG/P@10/R@10
