@@ -79,11 +79,20 @@ def extract_skills(text: str, max_skills: int = 40) -> list[dict]:
         match = pattern.search(masked)
         if not match:
             continue
-        line_start = masked.rfind("\n", 0, match.start()) + 1
-        line_end = masked.find("\n", match.end())
-        evidence = masked[line_start : line_end if line_end != -1 else None].strip()
+        # Evidence and the alias always come from the ORIGINAL text — the
+        # working copy's masked spans contain NUL filler, and PostgreSQL
+        # rejects NUL bytes in text columns outright (SQLite silently allowed
+        # them; the pgvector CI job caught it).
+        line_start = text.rfind("\n", 0, match.start()) + 1
+        line_end = text.find("\n", match.end())
+        evidence = text[line_start : line_end if line_end != -1 else None].strip()
+        alias = text[match.start() : match.end()]
         found.append(
-            {"canonical": canonical, "matched_alias": match.group(0), "evidence": evidence[:300]}
+            {
+                "canonical": canonical,
+                "matched_alias": alias.replace("\x00", ""),
+                "evidence": evidence.replace("\x00", "")[:300],
+            }
         )
         seen.add(canonical)
         masked = (

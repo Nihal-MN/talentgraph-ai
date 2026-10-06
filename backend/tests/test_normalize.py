@@ -32,6 +32,23 @@ class TestExtractSkills:
         assert "PostgreSQL workloads" in match["evidence"]
         assert "Intro line" not in match["evidence"]
 
+    def test_no_nul_bytes_in_evidence_or_alias(self):
+        # Regression: evidence used to be sliced from the masked working copy,
+        # leaking \x00 filler for previously matched spans in the same line —
+        # PostgreSQL rejects NUL bytes in text columns.
+        text = (
+            "Senior Engineer\n"
+            "Built embeddings pipelines and vector database infrastructure "
+            "on AWS with PyTorch and RAG.\n"
+        )
+        matches = extract_skills(text)
+        assert len(matches) >= 4
+        for match in matches:
+            assert "\x00" not in match["evidence"]
+            assert "\x00" not in match["matched_alias"]
+        aws = next(match for match in matches if match["canonical"] == "aws")
+        assert "Built embeddings pipelines and vector database infrastructure" in aws["evidence"]
+
     def test_no_duplicates_and_cap(self):
         text = "python " * 30
         matches = extract_skills(text, max_skills=5)
