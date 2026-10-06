@@ -14,7 +14,10 @@ class TestHealth:
         assert body["counts"]["embeddings"] == body["counts"]["candidates"]
         assert body["ai"]["mode"] == "demo"
         assert body["ai"]["embedding"]["provider"].startswith("demo")
-        assert body["retrieval"]["vector_backend"] == "python-cosine"
+        expected_vector = (
+            "pgvector" if body["database"]["dialect"] == "postgresql" else "python-cosine"
+        )
+        assert body["retrieval"]["vector_backend"] == expected_vector
 
 
 class TestSearchEndpoints:

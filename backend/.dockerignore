@@ -1,0 +1,17 @@
+# Never copy host artifacts into the image — the venv must be built inside.
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# local databases + env
+*.db
+.env
+
+# tooling noise
+.DS_Store
+pyrightconfig.json

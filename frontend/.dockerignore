@@ -1,0 +1,12 @@
+# Never copy host artifacts into the image.
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+.env
+.env.*
+
+.DS_Store
+npm-debug.log*
+coverage/

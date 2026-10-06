@@ -18,6 +18,7 @@ services:
       - "${POSTGRES_PORT:-5434}:5432"
     volumes:
       - talentgraph-db:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U talentgraph -d talentgraph"]
       interval: 3s
