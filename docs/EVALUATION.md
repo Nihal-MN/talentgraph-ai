@@ -35,15 +35,21 @@ retrieval → fusion → rerank) per query per strategy, with k = 10:
 
 ## What the numbers show (200-profile dataset, demo embedder)
 
-Measured on the seeded dataset (see the Evaluation page for the live table;
-numbers from the committed seed run with `--count 200`):
+Measured on the seeded dataset **on the docker stack (PostgreSQL + pgvector)**
+— the default path, and exactly what the Evaluation page displays after
+`docker compose up`. `make bench` reproduces + persists them:
 
 | Strategy | P@10 | R@10 | MRR | nDCG@10 |
 |---|---|---|---|---|
-| Lexical only | 0.746 | 0.475 | 0.932 | 0.729 |
-| Vector only | 0.662 | 0.409 | 0.803 | 0.557 |
-| Hybrid (RRF) | 0.775 | 0.486 | **0.958** | 0.731 |
-| Hybrid + rerank | **0.792** | **0.501** | **0.958** | **0.807** |
+| Lexical only | 0.696 | 0.429 | 0.852 | 0.685 |
+| Vector only | 0.663 | 0.409 | 0.804 | 0.557 |
+| Hybrid (RRF) | 0.758 | 0.475 | **0.938** | 0.724 |
+| Hybrid + rerank | **0.779** | **0.492** | **0.958** | **0.785** |
+
+The hermetic SQLite fallback (BM25 + Python cosine) produces slightly
+different numbers at the lexical layer — lexical P@10 is 0.746 there versus
+0.696 on PostgreSQL FTS. Both are real; cross-backend comparisons should use
+ranks (which is what RRF consumes), never absolute scores.
 
 Reading: lexical is strong when queries share exact terms; the vector path
 catches alias/paraphrase matches that never co-occur literally ("k8s" ↔

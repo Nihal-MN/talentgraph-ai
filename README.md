@@ -63,6 +63,17 @@ No keys, no signup, ~2 minutes on a laptop.
 4. **Rediscovery** → paste the sample JD → matches + explicit gaps.
 5. **Evaluation** → the four-strategy benchmark table with real numbers.
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Search results with parsed intent](docs/screenshots/02_search_berlin_results.png) **Natural-language search** — parsed chips, ranked results, per-result signals | ![Why this result panel](docs/screenshots/03_why_this_result.png) **Why this result?** — score breakdown, reranker notes (geo boost), matched skills with source quotes |
+| ![Vector-only retrieval](docs/screenshots/04_vector_only_postgres.png) **Vector-only vs lexical-only** — embeddings catch "Postgres"↔"PostgreSQL" | ![Gulf region scope](docs/screenshots/06_gulf_region_scope.png) **Regional scope** — "in the Gulf" lifts MENA recruiters with an explicit note |
+| ![Hard filters](docs/screenshots/07_hard_filters.png) **Hard filters** — explicit filters are strict SQL constraints | ![Rediscovery](docs/screenshots/10_rediscovery.png) **Rediscovery** — paste a JD, get matches + honest gaps |
+| ![Evaluation](docs/screenshots/11_evaluation.png) **Evaluation** — four strategies, real IR metrics, measured | ![Health](docs/screenshots/12_health.png) **System health** — pgvector verified, backend + mode transparency |
+
+*(All screenshots captured from the docker stack; synthetic data only.)*
+
 ## How it works
 
 ```
