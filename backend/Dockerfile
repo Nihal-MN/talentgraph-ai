@@ -1,5 +1,5 @@
 # TalentGraph AI — API image (Python 3.12 + uv, venv on PATH for exec DX)
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
